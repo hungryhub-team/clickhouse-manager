@@ -1,0 +1,614 @@
+{{define "connections/configuration"}}
+<div class="space-y-6" id="configuration-page">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Configuration</h1>
+            <p class="text-gray-500 dark:text-slate-400 text-sm" id="header-cluster-name">
+                System configuration and status
+            </p>
+        </div>
+        <div class="flex space-x-2">
+            <span id="version-badge" class="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs font-medium">
+                Loading...
+            </span>
+            <span id="uptime-badge" class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs font-medium">
+                Uptime: Loading...
+            </span>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="border-b border-gray-200 dark:border-gray-700">
+        <nav class="flex -mb-px space-x-8" aria-label="Tabs">
+            <button type="button"
+                class="tab-button active whitespace-nowrap py-4 px-1 border-b-2 border-indigo-500 font-medium text-sm text-indigo-600 dark:text-indigo-400"
+                data-tab="general"
+                onclick="switchTab('general')">
+                General
+            </button>
+            <button type="button"
+                class="tab-button whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
+                data-tab="users"
+                onclick="switchTab('users')">
+                Users & Access Control
+            </button>
+            <button type="button"
+                class="tab-button whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
+                data-tab="storage"
+                onclick="switchTab('storage')">
+                Storage & Disks
+            </button>
+        </nav>
+    </div>
+
+    <!-- Tab Contents -->
+    <div class="tab-content-container">
+        <!-- General Tab -->
+        <div id="tab-general" class="tab-panel space-y-6">
+            <!-- Loading state -->
+            <div id="general-loading" class="flex justify-center items-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-400"></div>
+                <span class="ml-3 text-gray-600 dark:text-gray-400">Loading general configuration...</span>
+            </div>
+
+            <!-- General Content -->
+            <div id="general-content" class="space-y-6 hidden">
+                <!-- Connection & Cluster Info -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Cluster & Connection</h3>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="cluster-info">
+                        <!-- Cluster info will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- System Settings -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <details>
+                        <summary class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 cursor-pointer flex justify-between items-center list-none">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 transform transition-transform duration-200 chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-white inline">System Settings</h3>
+                            </div>
+                            <span class="text-sm text-gray-500 dark:text-gray-400" id="settings-count">0 items</span>
+                        </summary>
+                        <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                                <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0">
+                                    <tr>
+                                        <th class="px-6 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
+                                        <th class="px-6 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Value</th>
+                                        <th class="px-6 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Changed</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" id="settings-table">
+                                    <!-- Settings will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Logging -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Logging & Observability</h3>
+                    </div>
+                    <div class="p-6" id="logging-config">
+                        <!-- Logging config will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users & Access Control Tab -->
+        <div id="tab-users" class="tab-panel hidden space-y-6">
+            <!-- Loading state -->
+            <div id="users-loading" class="hidden flex justify-center items-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-400"></div>
+                <span class="ml-3 text-gray-600 dark:text-gray-400">Loading users data...</span>
+            </div>
+
+            <!-- Users Table -->
+            <div id="users-content" class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Users & Access Control</h3>
+                    <button onclick="refreshUsersData()" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium">
+                        <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Auth Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Host IP</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Default Database</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" id="users-table-body">
+                            <!-- Users data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Storage & Disks Tab -->
+        <div id="tab-storage" class="tab-panel hidden space-y-6">
+            <!-- Loading state -->
+            <div id="storage-loading" class="hidden flex justify-center items-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-400"></div>
+                <span class="ml-3 text-gray-600 dark:text-gray-400">Loading storage data...</span>
+            </div>
+
+            <!-- Storage Content -->
+            <div id="storage-content" class="space-y-6">
+                <!-- Disks -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Storage & Disks</h3>
+                        <button onclick="refreshStorageData()" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium">
+                            <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Refresh
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        <div class="mb-6">
+                            <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Disks</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="disks-container">
+                                <!-- Disks data will be loaded here -->
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Storage Policies</h4>
+                            <div class="space-y-4" id="storage-policies-container">
+                                <!-- Storage policies data will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Connection ID from template
+const connectionId = parseInt('{{.ConnectionID}}', 10);
+
+// Format bytes to MB and GB
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 B';
+
+    const mb = bytes / (1024 * 1024);
+    const gb = mb / 1024;
+    if (gb >= 1) {
+        return `${mb.toFixed(1)} MB (${gb.toFixed(2)} GB)`;
+    }
+    return `${mb.toFixed(1)} MB`;
+}
+
+// Format uptime seconds to readable format
+function formatUptime(seconds) {
+    if (seconds === 0) return '0s';
+
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    const parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    if (secs > 0 || parts.length === 0) parts.push(`${secs}s`);
+
+    return parts.join(' ');
+}
+
+// Format memory tracking and uptime on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Load general tab data on page load
+    loadGeneralData();
+    loadedTabs.general = true;
+});
+
+// Track loaded tabs
+const loadedTabs = {
+    general: false,
+    users: false,
+    storage: false
+};
+
+function switchTab(tabName) {
+    // Hide all panels
+    document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.add('hidden');
+    });
+
+    // Remove active state from all buttons
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active', 'border-indigo-500', 'text-indigo-600', 'dark:text-indigo-400');
+        btn.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+    });
+
+    // Show selected panel
+    document.getElementById('tab-' + tabName).classList.remove('hidden');
+
+    // Add active state to selected button
+    const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+    activeBtn.classList.add('active', 'border-indigo-500', 'text-indigo-600', 'dark:text-indigo-400');
+    activeBtn.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+
+    // Load data for the tab if not loaded yet
+    if (!loadedTabs[tabName]) {
+        if (tabName === 'general') {
+            loadGeneralData();
+        } else if (tabName === 'users') {
+            loadUsersData();
+        } else if (tabName === 'storage') {
+            loadStorageData();
+        }
+        loadedTabs[tabName] = true;
+    }
+}
+
+function loadGeneralData() {
+    const loadingEl = document.getElementById('general-loading');
+    const contentEl = document.getElementById('general-content');
+
+    loadingEl.classList.remove('hidden');
+    contentEl.classList.add('hidden');
+
+    $.ajax({
+        url: `/api/connections/${connectionId}/general`,
+        method: 'GET',
+        success: function(data) {
+            renderGeneralData(data);
+        },
+        error: function(xhr, status, error) {
+            console.error('Error loading general data:', error);
+            showError('general-content', 'Failed to load general configuration data');
+        },
+        complete: function() {
+            loadingEl.classList.add('hidden');
+            contentEl.classList.remove('hidden');
+        }
+    });
+}
+
+function renderGeneralData(data) {
+    // Update header
+    const clusterName = data.ClusterInfo?.ClusterName || 'Unknown';
+    document.getElementById('header-cluster-name').textContent = `System configuration and status for ${clusterName}`;
+
+    // Update version badge
+    const version = data.ClusterInfo?.Version || 'Unknown';
+    document.getElementById('version-badge').textContent = `v${version}`;
+
+    // Update uptime badge
+    const uptime = data.ClusterInfo?.Uptime || 0;
+    document.getElementById('uptime-badge').textContent = 'Uptime: ' + formatUptime(uptime);
+
+    // Render cluster info
+    renderClusterInfo(data.ClusterInfo);
+
+    // Render settings
+    renderSettings(data.Settings);
+
+    // Render logging config
+    renderLoggingConfig(data.LogConfig);
+
+    // Initialize system settings toggle
+    initSystemSettingsToggle();
+}
+
+function renderClusterInfo(clusterInfo) {
+    if (!clusterInfo) return;
+
+    const container = document.getElementById('cluster-info');
+
+    const environmentHtml = clusterInfo.Environment === 'prod'
+        ? '<span class="text-red-600 dark:text-red-400 font-bold">Production</span>'
+        : '<span class="text-gray-900 dark:text-gray-100">Development</span>';
+
+    container.innerHTML = `
+        <div>
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Display Name</dt>
+            <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">${clusterInfo.DisplayName || '-'}</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Host</dt>
+            <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">${clusterInfo.Host || '-'}:${clusterInfo.Port || '-'} (${clusterInfo.Protocol || '-'})</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Environment</dt>
+            <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">${environmentHtml}</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Topology</dt>
+            <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">${clusterInfo.Shards || 0} Shards, ${clusterInfo.Replicas || 0} Replicas</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Timezone</dt>
+            <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">${clusterInfo.Timezone || '-'}</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Default DB</dt>
+            <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">${clusterInfo.DatabaseDefault || '-'}</dd>
+        </div>
+    `;
+}
+
+function renderSettings(settings) {
+    const tbody = document.getElementById('settings-table');
+    const countEl = document.getElementById('settings-count');
+
+    if (!settings || settings.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                    No settings found
+                </td>
+            </tr>
+        `;
+        countEl.textContent = '0 items';
+        return;
+    }
+
+    countEl.textContent = `${settings.length} items`;
+
+    tbody.innerHTML = settings.map(setting => `
+        <tr>
+            <td class="px-6 py-2 whitespace-nowrap font-mono text-xs text-gray-700 dark:text-gray-300"
+                title="${setting.Description || ''}">${setting.Name || '-'}</td>
+            <td class="px-6 py-2 max-w-xs truncate text-gray-900 dark:text-gray-100" title="${setting.Value || ''}">${setting.Value || '-'}</td>
+            <td class="px-6 py-2 whitespace-nowrap">
+                ${setting.Changed
+                    ? '<span class="px-2 py-0.5 rounded text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">Yes</span>'
+                    : '<span class="text-gray-400 dark:text-gray-500 text-xs">Default</span>'
+                }
+            </td>
+        </tr>
+    `).join('');
+}
+
+function renderLoggingConfig(logConfig) {
+    if (!logConfig) return;
+
+    const container = document.getElementById('logging-config');
+    const queryLog = logConfig.QueryLog;
+
+    if (!queryLog) {
+        container.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400">No logging configuration available</p>';
+        return;
+    }
+
+    const logStatus = queryLog.Enabled
+        ? '<span class="h-2 w-2 rounded-full bg-green-400 mr-2"></span> Enabled'
+        : '<span class="h-2 w-2 rounded-full bg-red-400 mr-2"></span> Disabled';
+
+    container.innerHTML = `
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+            <div>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Query Log</dt>
+                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100 flex items-center">
+                    ${logStatus}
+                </dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Flush Interval</dt>
+                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">${queryLog.FlushInterval || 0} ms</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Log Size (Est.)</dt>
+                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">${queryLog.Size || 0} bytes</dd>
+            </div>
+        </dl>
+    `;
+}
+
+function initSystemSettingsToggle() {
+    const systemSettingsDetails = document.querySelector('details');
+    const chevronIcon = document.querySelector('.chevron-icon');
+
+    if (systemSettingsDetails && chevronIcon) {
+        // Set initial state based on whether details is open
+        if (systemSettingsDetails.open) {
+            chevronIcon.classList.add('rotate-90');
+        }
+
+        // Toggle chevron rotation when details is toggled
+        systemSettingsDetails.addEventListener('toggle', function() {
+            if (this.open) {
+                chevronIcon.classList.add('rotate-90');
+            } else {
+                chevronIcon.classList.remove('rotate-90');
+            }
+        });
+    }
+}
+
+function loadUsersData() {
+    const loadingEl = document.getElementById('users-loading');
+    const contentEl = document.getElementById('users-content');
+
+    loadingEl.classList.remove('hidden');
+    contentEl.classList.add('hidden');
+
+    $.ajax({
+        url: `/api/connections/${connectionId}/users`,
+        method: 'GET',
+        success: function(data) {
+            renderUsersTable(data.users || []);
+        },
+        error: function(xhr, status, error) {
+            console.error('Error loading users:', error);
+            showError('users-content', 'Failed to load users data');
+        },
+        complete: function() {
+            loadingEl.classList.add('hidden');
+            contentEl.classList.remove('hidden');
+        }
+    });
+}
+
+function loadStorageData() {
+    const loadingEl = document.getElementById('storage-loading');
+    const contentEl = document.getElementById('storage-content');
+
+    loadingEl.classList.remove('hidden');
+    contentEl.classList.add('hidden');
+
+    $.ajax({
+        url: `/api/connections/${connectionId}/storage`,
+        method: 'GET',
+        success: function(data) {
+            renderDisks(data.disks || []);
+            renderStoragePolicies(data.storage_policies || []);
+        },
+        error: function(xhr, status, error) {
+            console.error('Error loading storage:', error);
+            showError('storage-content', 'Failed to load storage data');
+        },
+        complete: function() {
+            loadingEl.classList.add('hidden');
+            contentEl.classList.remove('hidden');
+        }
+    });
+}
+
+function renderUsersTable(users) {
+    const tbody = document.getElementById('users-table-body');
+
+    // Debug: log the users data
+    console.log('Users data:', users);
+
+    if (users.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                    No users found
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = users.map(user => `
+        <tr>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">${user.Name || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${user.AuthType || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${user.HostIP || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${user.DefaultDatabase || '-'}</td>
+        </tr>
+    `).join('');
+}
+
+function renderDisks(disks) {
+    const container = document.getElementById('disks-container');
+
+    // Debug: log the disks data
+    console.log('Disks data:', disks);
+
+    if (disks.length === 0) {
+        container.innerHTML = `
+            <div class="col-span-full text-center text-sm text-gray-500 dark:text-gray-400 py-4">
+                No disks found
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = disks.map(disk => {
+        // Debug: log each disk
+        console.log('Disk item:', disk);
+
+        const usedPercent = disk.TotalSpace > 0 ? ((disk.TotalSpace - disk.FreeSpace) / disk.TotalSpace * 100).toFixed(1) : 0;
+        return `
+            <div class="border border-gray-200 dark:border-gray-700 rounded-md p-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="font-medium text-sm text-gray-900 dark:text-gray-100">${disk.Name || 'N/A'}</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">${disk.Type || 'local'}</span>
+                </div>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-1">
+                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: ${usedPercent}%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                    <span>Free: ${formatBytes(disk.FreeSpace || 0)}</span>
+                    <span>Total: ${formatBytes(disk.TotalSpace || 0)}</span>
+                </div>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1 truncate" title="${disk.Path || ''}">${disk.Path || 'N/A'}</p>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderStoragePolicies(policies) {
+    const container = document.getElementById('storage-policies-container');
+
+    // Debug: log the policies data
+    console.log('Storage policies data:', policies);
+
+    if (policies.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-sm text-gray-500 dark:text-gray-400 py-4">
+                No storage policies found
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = policies.map(policy => `
+        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded text-sm">
+            <span class="font-bold text-gray-900 dark:text-gray-100">${policy.Name || 'N/A'}</span>
+            <span class="mx-2 text-gray-400">|</span>
+            <span class="text-gray-600 dark:text-gray-300">Volumes:</span>
+            ${(policy.Volumes || []).map(volume => `
+                <span class="ml-1 px-2 py-0.5 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-600 rounded text-xs text-gray-800 dark:text-gray-200">${volume.Name || 'N/A'} (${(volume.Disks || []).join(', ')})</span>
+            `).join('')}
+        </div>
+    `).join('');
+}
+
+function refreshUsersData() {
+    loadedTabs.users = false;
+    loadUsersData();
+}
+
+function refreshStorageData() {
+    loadedTabs.storage = false;
+    loadStorageData();
+}
+
+function showError(containerId, message) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = `
+        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-red-800 dark:text-red-200">${message}</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+</script>
+{{end}}

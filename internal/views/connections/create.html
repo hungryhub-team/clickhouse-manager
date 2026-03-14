@@ -1,0 +1,168 @@
+<div class="max-w-2xl mx-auto animate-fade-in-down">
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-white tracking-tight">New Connection</h1>
+        <p class="text-gray-400 mt-2">Add a new ClickHouse server to your dashboard</p>
+    </div>
+
+    <div class="glass p-8 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden">
+        <div class="absolute inset-0 bg-primary-500/5 blur-3xl pointer-events-none"></div>
+
+        <form action="/connections/create" method="POST" class="space-y-6 relative z-10">
+            {{if .Error}}
+            <div
+                class="bg-red-500/10 border border-red-500/50 text-red-200 p-4 rounded-lg mb-6 flex items-start gap-3 animate-pulse">
+                <svg class="w-5 h-5 mt-0.5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                    <h3 class="font-bold text-red-500">Connection Failed</h3>
+                    <p class="text-sm opacity-90">{{.Error}}</p>
+                </div>
+            </div>
+            {{end}}
+
+            <!-- Connection Basics -->
+            <div class="grid grid-cols-1 gap-6">
+                <div>
+                    <label class="block text-gray-300 text-sm font-semibold mb-2">Display Name</label>
+                    <input type="text" name="name"
+                        class="w-full bg-gray-900/60 border border-gray-700/50 rounded-lg p-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all outline-none"
+                        placeholder="My Production Cluster" required value="{{if .Form}}{{.Form.Name}}{{end}}">
+                </div>
+
+                <div>
+                    <label class="block text-gray-300 text-sm font-semibold mb-2">Environment</label>
+                    <div class="grid grid-cols-3 gap-4">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="label" value="DEVELOPMENT" class="peer sr-only" {{if .Form}}{{if
+                                eq .Form.Label "DEVELOPMENT" }}checked{{end}}{{else}}checked{{end}}>
+                            <div
+                                class="p-2 rounded-lg border border-gray-700 bg-gray-900/40 text-center text-gray-400 peer-checked:bg-blue-500/20 peer-checked:text-blue-400 peer-checked:border-blue-500/50 transition-all hover:bg-gray-800">
+                                Development
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="label" value="STAGING" class="peer sr-only" {{if .Form}}{{if eq
+                                .Form.Label "STAGING" }}checked{{end}}{{end}}>
+                            <div
+                                class="p-2 rounded-lg border border-gray-700 bg-gray-900/40 text-center text-gray-400 peer-checked:bg-amber-500/20 peer-checked:text-amber-400 peer-checked:border-amber-500/50 transition-all hover:bg-gray-800">
+                                Staging
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="label" value="PRODUCTION" class="peer sr-only" {{if .Form}}{{if eq
+                                .Form.Label "PRODUCTION" }}checked{{end}}{{end}}>
+                            <div
+                                class="p-2 rounded-lg border border-gray-700 bg-gray-900/40 text-center text-gray-400 peer-checked:bg-red-500/20 peer-checked:text-red-400 peer-checked:border-red-500/50 transition-all hover:bg-gray-800">
+                                Production
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="md:col-span-3">
+                        <label class="block text-gray-300 text-sm font-semibold mb-2">Host</label>
+                        <input type="text" name="host"
+                            class="w-full bg-gray-900/60 border border-gray-700/50 rounded-lg p-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all outline-none"
+                            placeholder="clickhouse.example.com" required value="{{if .Form}}{{.Form.Host}}{{end}}">
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 text-sm font-semibold mb-2">Port</label>
+                        <input type="number" name="port"
+                            class="w-full bg-gray-900/60 border border-gray-700/50 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all outline-none"
+                            value="{{if .Form}}{{.Form.Port}}{{else}}8123{{end}}" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Protocol & Auth -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <div>
+                    <label class="block text-gray-300 text-sm font-semibold mb-2">Protocol</label>
+                    <div class="relative">
+                        <select name="protocol"
+                            class="w-full bg-gray-900/60 border border-gray-700/50 rounded-lg p-3 text-white appearance-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all outline-none cursor-pointer">
+                            <option value="http" {{if .Form}}{{if eq .Form.Protocol "http" }}selected{{end}}{{end}}>HTTP
+                                (8123)</option>
+                            <option value="native" {{if .Form}}{{if eq .Form.Protocol "native" }}selected{{end}}{{end}}>
+                                Native TCP (9000)</option>
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-300 text-sm font-semibold mb-2">Database</label>
+                    <input type="text" name="database"
+                        class="w-full bg-gray-900/60 border border-gray-700/50 rounded-lg p-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all outline-none"
+                        placeholder="default" value="{{if .Form}}{{.Form.Database}}{{end}}">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <div>
+                    <label class="block text-gray-300 text-sm font-semibold mb-2">Username</label>
+                    <input type="text" name="username"
+                        class="w-full bg-gray-900/60 border border-gray-700/50 rounded-lg p-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all outline-none"
+                        placeholder="default" value="{{if .Form}}{{.Form.Username}}{{end}}">
+                </div>
+                <div>
+                    <label class="block text-gray-300 text-sm font-semibold mb-2">Password</label>
+                    <input type="password" name="password"
+                        class="w-full bg-gray-900/60 border border-gray-700/50 rounded-lg p-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all outline-none"
+                        value="{{if .Form}}{{.Form.Password}}{{end}}">
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+                <div class="relative flex items-start">
+                    <div class="flex items-center h-5">
+                        <input id="use_ssl" name="use_ssl" type="checkbox"
+                            class="w-5 h-5 border border-gray-600 rounded bg-gray-700 focus:ring-3 focus:ring-primary-500/50 ring-offset-0 focus:ring-offset-0 transition-all checked:bg-primary-600"
+                            {{if .Form}}{{if .Form.UseSSL}}checked{{end}}{{end}}>
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="use_ssl" class="font-medium text-gray-300 select-none cursor-pointer">Enable
+                            SSL/TLS</label>
+                        <p class="text-gray-500 text-xs">Recommended for production connections</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-8 flex justify-end gap-4 border-t border-white/5 mt-6">
+                <a href="/"
+                    class="px-6 py-2.5 text-gray-400 hover:text-white font-medium transition-colors hover:bg-white/5 rounded-lg">Cancel</a>
+                <button type="submit"
+                    class="px-8 py-2.5 bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white font-bold rounded-lg shadow-lg shadow-primary-500/30 transition-all transform hover:scale-105">
+                    Connect
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in-down {
+        animation: fadeInDown 0.5s ease-out forwards;
+    }
+</style>
