@@ -23,6 +23,7 @@ func NewReportHandler(reportUsecase usecase.ReportUsecase, connectionUsecase *us
 func (h *ReportHandler) Register(app *fiber.App) {
 	group := app.Group("/connections/:id/reports")
 	group.Get("/slow-queries", h.GetSlowQueries)
+	group.Get("/resource-stats", h.GetResourceStats)
 }
 
 func (h *ReportHandler) GetSlowQueries(c *fiber.Ctx) error {
@@ -63,4 +64,27 @@ func (h *ReportHandler) GetSlowQueries(c *fiber.Ctx) error {
 		"ActiveMenu":         " reports",
 		"SidebarConnections": connections,
 	}, "layouts/main")
+}
+
+// GetResourceStats returns resource usage statistics (memory, queries, merges, fetches)
+func (h *ReportHandler) GetResourceStats(c *fiber.Ctx) error {
+	connectionID, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Connection ID"})
+	}
+
+	refresh := c.Query("refresh") == "true"
+
+	// Get process stats from connection usecase
+	stats, err := h.connectionUsecase.GetProcessStatsData(c.Context(), connectionID, refresh)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{
+		"memory_tracking":     stats.MemoryTracking,
+		"queries_in_progress":  stats.QueriesInProgress,
+		"background_merges":    stats.BackgroundMerges,
+		"background_fetches":   stats.BackgroundFetches,
+	})
 }

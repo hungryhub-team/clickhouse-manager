@@ -3,7 +3,6 @@ package clickhouse
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/hungryhub-team/clickhouse-manager/entity"
@@ -100,6 +99,7 @@ func (c *clientImpl) GetSettings(ctx context.Context, conn *entity.CHConnection)
 		var s entity.CHSetting
 		var changed uint8
 		if err := rows.Scan(&s.Name, &s.Value, &changed, &s.Description, &s.Type, &s.Readonly); err != nil {
+			fmt.Println(err)
 			continue // Skip error rows?
 		}
 		s.Changed = changed == 1
@@ -115,7 +115,8 @@ func (c *clientImpl) GetUsers(ctx context.Context, conn *entity.CHConnection) ([
 	}
 
 	// Check if system.users exists (modern CH)
-	query := "SELECT name, id, storage, auth_type, host_ip, default_roles, default_database, profiles, quotas FROM system.users"
+	// Query only fields that are available in most ClickHouse versions
+	query := "SELECT name, id, storage, auth_type, host_ip, default_database FROM system.users"
 	rows, err := db.Query(ctx, query)
 	if err != nil {
 		// Fallback for very old versions or different access
@@ -126,21 +127,11 @@ func (c *clientImpl) GetUsers(ctx context.Context, conn *entity.CHConnection) ([
 	var users []entity.CHUser
 	for rows.Next() {
 		var u entity.CHUser
-		var defaultRoles, profiles, quotas []string
-		// ClickHouse arrays are returned as []string or similar depending on driver
-		if err := rows.Scan(&u.Name, &u.ID, &u.Storage, &u.AuthType, &u.HostIP, &defaultRoles, &u.DefaultDatabase, &profiles, &quotas); err != nil {
-			// Try without scanning arrays if driver fails?
-			// Assuming driver handles []string
+		if err := rows.Scan(&u.Name, &u.ID, &u.Storage, &u.AuthType, &u.HostIP, &u.DefaultDatabase); err != nil {
+			fmt.Println(err)
 			continue
 		}
 
-		if len(profiles) > 0 {
-			u.Profile = strings.Join(profiles, ", ")
-		}
-		if len(quotas) > 0 {
-			u.Quota = strings.Join(quotas, ", ")
-		}
-		u.DefaultRoles = defaultRoles
 		users = append(users, u)
 	}
 	return users, nil

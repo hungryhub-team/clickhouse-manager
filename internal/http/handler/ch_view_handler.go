@@ -35,6 +35,11 @@ func (h *ViewHandler) Register(api fiber.Router) {
 	api.Delete("/connections/:id/compare/favorites/:fav_id", h.DeleteCompareFavorite)
 	api.Get("/connections/:id/console", h.ConsolePage)
 	api.Get("/connections/:id/configuration", h.ConfigurationPage)
+
+	// API Routes for configuration tabs
+	api.Get("/api/connections/:id/general", h.GetGeneralAPI)
+	api.Get("/api/connections/:id/users", h.GetUsersAPI)
+	api.Get("/api/connections/:id/storage", h.GetStorageAPI)
 }
 
 // Helper to render view with global data (Sidebar)
@@ -316,20 +321,71 @@ func (h *ViewHandler) ConsolePage(c *fiber.Ctx) error {
 func (h *ViewHandler) ConfigurationPage(c *fiber.Ctx) error {
 	id, _ := strconv.ParseInt(c.Params("id"), 10, 64)
 
-	// Check connection status first? Or just fetch config.
-	// We want to fetch all config data
-	data, err := h.usecase.GetConfigurationData(c.Context(), id)
+	// Check if connection exists by getting all connections
+	conns, err := h.usecase.GetAllConnections(c.Context())
 	if err != nil {
 		return h.render(c, "error", fiber.Map{"Error": err.Error()})
 	}
-	if data == nil {
+
+	var found bool
+	for _, conn := range conns {
+		if conn.ID == id {
+			found = true
+			break
+		}
+	}
+
+	if !found {
 		return c.Status(404).SendString("Connection not found")
 	}
 
+	// No need to fetch all config data upfront anymore
+	// Data will be loaded via AJAX when tabs are switched
+
 	return h.render(c, "connections/configuration", fiber.Map{
 		"ConnectionID": id,
-		"Data":         data,
 		"PageTitle":    "Configuration",
 		"ActiveMenu":   " configuration",
+	})
+}
+
+// GetUsersAPI returns users data as JSON
+// GetGeneralAPI returns general configuration data as JSON
+func (h *ViewHandler) GetGeneralAPI(c *fiber.Ctx) error {
+	id, _ := strconv.ParseInt(c.Params("id"), 10, 64)
+
+	data, err := h.usecase.GetGeneralData(c.Context(), id)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(data)
+}
+
+func (h *ViewHandler) GetUsersAPI(c *fiber.Ctx) error {
+	id, _ := strconv.ParseInt(c.Params("id"), 10, 64)
+
+	users, err := h.usecase.GetUsersData(c.Context(), id)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{
+		"users": users,
+	})
+}
+
+// GetStorageAPI returns storage policies and disks data as JSON
+func (h *ViewHandler) GetStorageAPI(c *fiber.Ctx) error {
+	id, _ := strconv.ParseInt(c.Params("id"), 10, 64)
+
+	policies, disks, err := h.usecase.GetStorageData(c.Context(), id)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{
+		"storage_policies": policies,
+		"disks":            disks,
 	})
 }

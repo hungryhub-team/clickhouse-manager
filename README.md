@@ -32,8 +32,6 @@ Goals
 - Git (See [Git Installation](https://git-scm.com/downloads))
 - Go 1.26+ (See [Golang Installation](https://golang.org/doc/install))
 - ClickHouse (See [ClickHouse Installation](https://clickhouse.com/docs/en/installation/))
-- Mockery (Optional) (See [Mockery Installation](https://github.com/vektra/mockery))
-- Redis (Optional based on your requirement) (See [Redis Installation](https://redis.io/docs/getting-started/installation/) or use in Docker)
 
 #### Windows OS (for a better development experience)
 
@@ -75,7 +73,7 @@ make test
 ```sh
 docker build -t go-ch-manager-app:1.0.1 -f ./deploy/docker/app/Dockerfile .
 ```
-- Run docker compose for API and Workers
+- Run docker compose
 ```sh
 docker-compose -f docker-compose.yaml up -d
 ```

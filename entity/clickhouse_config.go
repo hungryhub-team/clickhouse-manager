@@ -37,9 +37,9 @@ type CHUser struct {
 	Name            string
 	ID              string
 	Storage         string
-	AuthType        string
+	AuthType        []string
 	AuthParams      string
-	HostIP          string
+	HostIP          []string
 	Grantees        []string
 	DefaultRoles    []string
 	DefaultDatabase string
@@ -60,7 +60,7 @@ type CHSetting struct {
 	Changed     bool
 	Description string
 	Type        string
-	Readonly    int
+	Readonly    uint8
 }
 
 type StoragePolicy struct {

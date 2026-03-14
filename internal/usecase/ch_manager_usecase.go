@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/hungryhub-team/clickhouse-manager/entity"
-	"github.com/hungryhub-team/clickhouse-manager/internal/helper"
 	"github.com/hungryhub-team/clickhouse-manager/internal/repository/clickhouse"
 	"github.com/hungryhub-team/clickhouse-manager/internal/repository/sqlite"
 )
@@ -237,7 +236,6 @@ func (u *ConnectionUsecase) GetConfigurationData(ctx context.Context, id int64) 
 	if info != nil {
 		data.ClusterInfo = *info
 	}
-	helper.DumpWithTitle(info, "info")
 	// We ignore err for ClusterInfo because we want to show partial data (Host/Port) even if connection fails
 
 	if settings, err := u.chClient.GetSettings(ctx, conn); err == nil {
@@ -266,6 +264,91 @@ func (u *ConnectionUsecase) GetConfigurationData(ctx context.Context, id int64) 
 	}
 
 	return data, nil
+}
+
+// GetGeneralData fetches general configuration data for a connection
+func (u *ConnectionUsecase) GetGeneralData(ctx context.Context, id int64) (*entity.ConfigurationData, error) {
+	conn, err := u.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if conn == nil {
+		return nil, fmt.Errorf("connection not found")
+	}
+
+	data := &entity.ConfigurationData{}
+
+	// Fetch cluster info
+	info, err := u.chClient.GetClusterConfig(ctx, conn)
+	if info != nil {
+		data.ClusterInfo = *info
+	}
+
+	// Fetch settings
+	if settings, err := u.chClient.GetSettings(ctx, conn); err == nil {
+		data.Settings = settings
+	}
+
+	// Fetch log config
+	if logCfg, err := u.chClient.GetLogConfig(ctx, conn); err == nil {
+		data.LogConfig = *logCfg
+	}
+
+	return data, nil
+}
+
+// GetUsersData fetches users data for a connection
+func (u *ConnectionUsecase) GetUsersData(ctx context.Context, id int64) ([]entity.CHUser, error) {
+	conn, err := u.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if conn == nil {
+		return nil, fmt.Errorf("connection not found")
+	}
+
+	users, err := u.chClient.GetUsers(ctx, conn)
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+// GetStorageData fetches storage policies and disks data for a connection
+func (u *ConnectionUsecase) GetStorageData(ctx context.Context, id int64) ([]entity.StoragePolicy, []entity.Disk, error) {
+	conn, err := u.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, nil, err
+	}
+	if conn == nil {
+		return nil, nil, fmt.Errorf("connection not found")
+	}
+
+	policies, disks, err := u.chClient.GetStoragePolicies(ctx, conn)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return policies, disks, nil
+}
+
+// GetProcessStatsData fetches process statistics (memory, queries, merges, fetches)
+func (u *ConnectionUsecase) GetProcessStatsData(ctx context.Context, id int64, refresh bool) (*entity.ProcessStats, error) {
+	conn, err := u.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if conn == nil {
+		return nil, fmt.Errorf("connection not found")
+	}
+
+	stats, err := u.chClient.GetProcessStats(ctx, conn)
+	if err != nil {
+		return nil, err
+	}
+
+	return stats, nil
 }
 
 func (u *ConnectionUsecase) SaveFavoriteComparison(ctx context.Context, fav *entity.FavoriteComparison) error {
