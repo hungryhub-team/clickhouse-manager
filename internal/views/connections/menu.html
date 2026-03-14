@@ -1,0 +1,269 @@
+<div class="max-w-6xl mx-auto animate-fade-in-down">
+    <!-- Connection Status Banner -->
+    <!-- Connection Status Banner -->
+    <div
+        class="mb-10 p-8 glass rounded-2xl border border-white/5 relative overflow-hidden shadow-2xl shadow-primary-500/30 group">
+        <!-- Background Gradients -->
+        <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-amber-900/40 pointer-events-none">
+        </div>
+        <div
+            class="absolute top-0 right-0 w-full h-full bg-gradient-to-l from-primary-500/10 via-transparent to-transparent pointer-events-none">
+        </div>
+        <div
+            class="absolute -bottom-1/2 -right-20 w-96 h-96 bg-primary-500/20 rounded-full blur-[100px] pointer-events-none">
+        </div>
+
+        <!-- Decoration -->
+        <div
+            class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-30 transition-opacity transform scale-150 rotate-12 pointer-events-none">
+            <svg class="w-40 h-40 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.5"
+                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+        </div>
+
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <div class="flex items-center gap-3 mb-3">
+                    <h1 class="text-4xl font-extrabold text-white tracking-tight">{{.Connection.Name}}</h1>
+                    {{if eq .Connection.Label "PRODUCTION"}}
+                    <span
+                        class="px-2.5 py-0.5 rounded text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/30">PRODUCTION</span>
+                    {{else if eq .Connection.Label "STAGING"}}
+                    <span
+                        class="px-2.5 py-0.5 rounded text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">STAGING</span>
+                    {{else}}
+                    <span
+                        class="px-2.5 py-0.5 rounded text-xs font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">DEVELOPMENT</span>
+                    {{end}}
+                </div>
+                <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-gray-300 text-sm font-medium">
+                    <span class="flex items-center gap-2 bg-black/20 px-3 py-1.5 rounded-full border border-white/5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary-400" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                        </svg>
+                        {{.Connection.Host}}:{{.Connection.Port}}
+                    </span>
+                    <span class="flex items-center gap-2 bg-black/20 px-3 py-1.5 rounded-full border border-white/5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {{if .Connection.UseSSL}}SSL Secure{{else}}Unsecured{{end}}
+                    </span>
+                    <span class="flex items-center gap-2 bg-black/20 px-3 py-1.5 rounded-full border border-white/5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-400" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                        v{{if .ServerInfo}}{{.ServerInfo}}{{else}}Unknown{{end}}
+                    </span>
+                </div>
+            </div>
+
+            <a href="/"
+                class="group flex items-center gap-2 px-6 py-2.5 rounded-xl border border-white/10 text-gray-300 hover:text-white hover:bg-white/10 transition-all font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:-translate-x-1"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Close Connection
+            </a>
+        </div>
+    </div>
+
+    <!-- Tools Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in-up">
+        <!-- Explorer Card -->
+        <a href="/connections/{{.Connection.ID}}/tables"
+            class="group bg-gray-900/40 p-8 rounded-2xl border border-gray-600 hover:border-primary-500/50 hover:bg-gray-800 transition-all duration-300 hover:shadow-2xl hover:shadow-primary-900/10 hover:-translate-y-1 relative overflow-hidden">
+            <div
+                class="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/0 group-hover:to-blue-500/5 transition-all duration-500">
+            </div>
+
+            <div class="flex items-center justify-between mb-6 relative z-10">
+                <div
+                    class="p-3 bg-blue-500/10 rounded-xl text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300 box-shadow-glow">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                </div>
+                <div
+                    class="w-8 h-8 rounded-full border border-gray-700 flex items-center justify-center group-hover:border-blue-500/50 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 group-hover:text-blue-400"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">Explorer</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">Browse database schemas, tables, views, and system
+                dictionaries visually.</p>
+        </a>
+
+        <!-- Query Console Card -->
+        <a href="/connections/{{.Connection.ID}}/console"
+            class="group bg-gray-900/40 p-8 rounded-2xl border border-gray-600 hover:border-emerald-500/50 hover:bg-gray-800 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-900/10 hover:-translate-y-1 relative overflow-hidden">
+            <div
+                class="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/0 group-hover:to-emerald-500/5 transition-all duration-500">
+            </div>
+
+            <div class="flex items-center justify-between mb-6 relative z-10">
+                <div
+                    class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 box-shadow-glow">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div
+                    class="w-8 h-8 rounded-full border border-gray-700 flex items-center justify-center group-hover:border-emerald-500/50 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 group-hover:text-emerald-400"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">Console</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">Execute SQL queries directly against your cluster with
+                syntax highlighting.</p>
+        </a>
+
+        <!-- Compare Card -->
+        <a href="/connections/{{.Connection.ID}}/compare"
+            class="group bg-gray-900/40 p-8 rounded-2xl border border-gray-600 hover:border-purple-500/50 hover:bg-gray-800 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-900/10 hover:-translate-y-1 relative overflow-hidden">
+            <div
+                class="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-500/0 group-hover:to-purple-500/5 transition-all duration-500">
+            </div>
+
+            <div class="flex items-center justify-between mb-6 relative z-10">
+                <div
+                    class="p-3 bg-purple-500/10 rounded-xl text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-all duration-300 box-shadow-glow">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                </div>
+                <div
+                    class="w-8 h-8 rounded-full border border-gray-700 flex items-center justify-center group-hover:border-purple-500/50 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 group-hover:text-purple-400"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">Compare</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">Analyze performance differences between query versions
+                side-by-side.</p>
+        </a>
+
+        <!-- Reports Card (New) -->
+        <a href="/connections/{{.Connection.ID}}/reports/slow-queries"
+            class="group bg-gray-900/40 p-8 rounded-2xl border border-gray-600 hover:border-amber-500/50 hover:bg-gray-800 transition-all duration-300 hover:shadow-2xl hover:shadow-amber-900/10 hover:-translate-y-1 relative overflow-hidden">
+            <div
+                class="absolute inset-0 bg-gradient-to-br from-amber-500/0 to-amber-500/0 group-hover:to-amber-500/5 transition-all duration-500">
+            </div>
+
+            <div class="flex items-center justify-between mb-6 relative z-10">
+                <div
+                    class="p-3 bg-amber-500/10 rounded-xl text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300 box-shadow-glow">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                </div>
+                <div
+                    class="w-8 h-8 rounded-full border border-gray-700 flex items-center justify-center group-hover:border-amber-500/50 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 group-hover:text-amber-400"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-bold text-white mb-2 group-hover:text-amber-400 transition-colors">Reports
+            </h3>
+            <p class="text-gray-400 text-sm leading-relaxed">Analyze slow queries and performance metrics.</p>
+        </a>
+
+        <!-- Configuration Card (New) -->
+        <a href="/connections/{{.Connection.ID}}/configuration"
+            class="group bg-gray-900/40 p-8 rounded-2xl border border-gray-600 hover:border-orange-500/50 hover:bg-gray-800 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-900/10 hover:-translate-y-1 relative overflow-hidden">
+            <div
+                class="absolute inset-0 bg-gradient-to-br from-orange-500/0 to-orange-500/0 group-hover:to-orange-500/5 transition-all duration-500">
+            </div>
+
+            <div class="flex items-center justify-between mb-6 relative z-10">
+                <div
+                    class="p-3 bg-orange-500/10 rounded-xl text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition-all duration-300 box-shadow-glow">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <div
+                    class="w-8 h-8 rounded-full border border-gray-700 flex items-center justify-center group-hover:border-orange-500/50 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 group-hover:text-orange-400"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-bold text-white mb-2 group-hover:text-orange-400 transition-colors">Configuration
+            </h3>
+            <p class="text-gray-400 text-sm leading-relaxed">View cluster health, system settings, users, and storage
+                policies.</p>
+        </a>
+    </div>
+</div>
+
+<style>
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 0.5s ease-out forwards;
+    }
+
+    .animate-fade-in-down {
+        animation: fadeInDown 0.5s ease-out forwards;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
