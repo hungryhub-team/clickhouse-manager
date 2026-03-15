@@ -120,6 +120,9 @@ func main() {
 	// Serve Frontend (Assets only if needed, root is now handled by view handler)
 	// app.Static("/", "./internal/views")
 
+	// Serve favicon files
+	app.Static("/favicon", "./internal/views/layouts/favicon")
+
 	app.Get("/health-check", healthCheck)
 	app.Get("/metrics", monitor.New())
 
