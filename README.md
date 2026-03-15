@@ -8,13 +8,7 @@ It provides engineers, data teams, and platform owners with deep visibility into
 
 Built with performance and operability in mind, clickhouse-manager helps teams move from reactive firefighting to proactive optimization by turning raw ClickHouse system data into actionable insights.
 
-## Goals
-- Simplify ClickHouse administration by providing clear visibility and centralized control
-- Quickly identify performance bottlenecks in queries, storage, and resource usage
-- Enable faster troubleshooting and optimization with actionable insights and metrics
-- Improve Operational Confidence & Stability
-
-## Features
+## Features ✨
 - **Schema Explorer** – Browse and explore database schemas, tables, and structures.
 - **Console** – Run SQL queries directly against the database and view query execution cost.
 - **Compare** – Compare query optimization results to evaluate performance improvements.
