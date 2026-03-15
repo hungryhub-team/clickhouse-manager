@@ -82,7 +82,7 @@ func (c *clientImpl) getConnection(conn *entity.CHConnection) (driver.Conn, erro
 				Name    string
 				Version string
 			}{
-				{Name: "go-ch-manager", Version: "0.1"},
+				{Name: "clickhouse-manager", Version: "0.1"},
 			},
 		},
 		Debug: false,

@@ -1,4 +1,4 @@
-APP_NAME=go-ch-manager
+APP_NAME=clickhouse-manager
 BUILD_DIR=.build
 DIST_DIR=$(BUILD_DIR)/dist
 MAIN_PACKAGE=./cmd/app

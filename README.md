@@ -3,22 +3,18 @@
 
 <img width="2928" height="2102" alt="image" src="https://github.com/user-attachments/assets/02d35212-d914-415e-a2f3-c03d7ff45b94" />
 
-`go-ch-manager` is a powerful, lightweight, and efficient management tool designed to simplify day-to-day operations of ClickHouse databases at scale.
+`clickhouse-manager` is a powerful, lightweight, and efficient management tool designed to simplify day-to-day operations of ClickHouse databases at scale.
 It provides engineers, data teams, and platform owners with deep visibility into query execution, system performance, storage usage, and cluster health—all from a centralized and easy-to-use interface.
 
-Built with performance and operability in mind, go-ch-manager helps teams move from reactive firefighting to proactive optimization by turning raw ClickHouse system data into actionable insights.
+Built with performance and operability in mind, clickhouse-manager helps teams move from reactive firefighting to proactive optimization by turning raw ClickHouse system data into actionable insights.
 
-Goals
-- Simplify ClickHouse administration by providing clear visibility and centralized control
-- Quickly identify performance bottlenecks in queries, storage, and resource usage
-- Enable faster troubleshooting and optimization with actionable insights and metrics
-- Improve Operational Confidence & Stability
-
-## Tech Stacks
-- Go 1.25+
-- ClickHouse
-- Go Fiber
-- SQLite
+## Features ✨
+- **Schema Explorer** – Browse and explore database schemas, tables, and structures.
+- **Console** – Run SQL queries directly against the database and view query execution cost.
+- **Compare** – Compare query optimization results to evaluate performance improvements.
+- **Reports** – View ClickHouse server statistics such as slow queries, query performance, resource usage, and more!.
+- **AI Analyzer** – Analyze queries using AI to get insights, optimization suggestions, and performance improvements.
+- **Configuration** – Manage application and connection settings.
 
 ## Contact
 | Name                   | Github                          | Role        |
@@ -71,7 +67,7 @@ make test
 ### Running In Docker
 - Docker Build for APP
 ```sh
-docker build -t go-ch-manager-app:1.0.1 -f ./deploy/docker/app/Dockerfile .
+docker build -t clickhouse-manager-app:1.0.1 -f ./deploy/docker/app/Dockerfile .
 ```
 - Run docker compose
 ```sh
