@@ -79,6 +79,43 @@ docker-compose -f docker-compose.yaml up -d
 ```
 
 
+## Fiber Web App Bundles
+
+The project distributes a Fiber web UI bundle for macOS, Windows, and Linux.
+Each bundle contains:
+- server binary (`ClickHouse Manager Server` / `ClickHouse Manager Server.exe`)
+- view templates (`internal/views`)
+- launcher script (`Start ClickHouse Manager.bat` or `start-clickhouse-manager.sh`)
+
+### Local Development
+
+Run the web app directly:
+```sh
+go run ./cmd/app
+```
+
+Open:
+```text
+http://127.0.0.1:7012/
+```
+
+### Automated Builds (GitHub Actions)
+
+The repository includes a workflow that builds Fiber bundles for all target OS.
+
+**Trigger a release build:**
+```sh
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+This will:
+1. Build bundle artifacts for macOS, Windows, and Linux
+2. Create a GitHub Release with all bundle files attached
+
+**Manual trigger:** You can also trigger builds manually from the Actions tab using `workflow_dispatch`.
+
+
 ## Contributing
 - Create a new branch with a descriptive name that reflects the changes and switch to the new branch. Use the prefix `feature/` for new features or `fix/` for bug fixes.
 ```sh

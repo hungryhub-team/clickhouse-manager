@@ -1,0 +1,259 @@
+name: Build Fiber App Bundles
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        build:
+          - os: 'linux'
+            runner: 'ubuntu-22.04'
+            artifact: 'ClickHouse-Manager-Linux-amd64-WebUI'
+            binary: 'ClickHouse Manager Server'
+          - os: 'windows'
+            runner: 'windows-latest'
+            artifact: 'ClickHouse-Manager-Windows-amd64-WebUI'
+            binary: 'ClickHouse Manager Server.exe'
+          - os: 'darwin'
+            runner: 'macos-latest'
+            artifact: 'ClickHouse-Manager-macOS-arm64'
+            binary: 'ClickHouse Manager Server'
+
+    runs-on: ${{ matrix.build.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build Fiber Server Bundle
+        shell: bash
+        run: |
+          mkdir -p dist/bundle/internal
+          go build -o "dist/bundle/${{ matrix.build.binary }}" ./cmd/app
+          cp -R internal/views dist/bundle/internal/
+
+      - name: Create Windows Launcher
+        if: matrix.build.os == 'windows'
+        shell: bash
+        run: |
+          cat > "dist/bundle/Start ClickHouse Manager.bat" << 'EOF'
+          @echo off
+          setlocal
+          cd /d "%~dp0"
+          if not defined API_PORT set API_PORT=:8760
+
+          REM Derive port number for URL (strip leading colon)
+          set "PORT=%API_PORT::=%"
+
+          if not exist "%~dp0ClickHouse Manager Server.exe" (
+            powershell -NoProfile -Command "Add-Type -AssemblyName PresentationFramework; [System.Windows.MessageBox]::Show('ClickHouse Manager Server.exe is missing from this folder. Please re-extract the artifact.', 'ClickHouse Manager')" >nul 2>&1
+            echo [ERROR] ClickHouse Manager Server.exe is missing from this folder.
+            pause
+            exit /b 1
+          )
+
+          start "ClickHouse Manager Server" /min "%~dp0ClickHouse Manager Server.exe"
+          timeout /t 2 /nobreak >nul
+
+          REM Open in app-window (webview-like UX) when Edge is available.
+          where msedge >nul 2>&1
+          if %errorlevel%==0 (
+            start "ClickHouse Manager" msedge --new-window --app="http://127.0.0.1:%PORT%/"
+          ) else (
+            start "ClickHouse Manager UI" "http://127.0.0.1:%PORT%/"
+          )
+          EOF
+
+      - name: Create Linux Launcher
+        if: matrix.build.os == 'linux'
+        shell: bash
+        run: |
+          cat > dist/bundle/start-clickhouse-manager.sh << 'EOF'
+          #!/usr/bin/env sh
+          set -eu
+
+          show_alert() {
+            msg="$1"
+            if command -v zenity >/dev/null 2>&1; then
+              zenity --error --title="ClickHouse Manager" --text="$msg" >/dev/null 2>&1 || true
+            elif command -v kdialog >/dev/null 2>&1; then
+              kdialog --error "$msg" --title "ClickHouse Manager" >/dev/null 2>&1 || true
+            fi
+            printf "[ERROR] %s\n" "$msg" >&2
+          }
+
+          cd "$(dirname "$0")"
+          export API_PORT="${API_PORT:-:8760}"
+          PORT="${API_PORT#:}"
+
+          if [ ! -x "./ClickHouse Manager Server" ]; then
+            show_alert "ClickHouse Manager Server is missing or not executable. Please re-extract the artifact."
+            exit 1
+          fi
+
+          URL="http://127.0.0.1:${PORT}/"
+
+          # Open browser after server boots.
+          (
+            sleep 2
+            if command -v microsoft-edge >/dev/null 2>&1; then
+              microsoft-edge --new-window --app="$URL" >/dev/null 2>&1 &
+            elif command -v google-chrome >/dev/null 2>&1; then
+              google-chrome --new-window --app="$URL" >/dev/null 2>&1 &
+            elif command -v chromium >/dev/null 2>&1; then
+              chromium --new-window --app="$URL" >/dev/null 2>&1 &
+            elif command -v chromium-browser >/dev/null 2>&1; then
+              chromium-browser --new-window --app="$URL" >/dev/null 2>&1 &
+            elif command -v xdg-open >/dev/null 2>&1; then
+              xdg-open "$URL" >/dev/null 2>&1 &
+            else
+              show_alert "No supported browser found. Open $URL manually."
+            fi
+          ) &
+
+          exec ./"ClickHouse Manager Server"
+          EOF
+          chmod +x dist/bundle/start-clickhouse-manager.sh
+
+      - name: Create macOS .app bundle
+        if: matrix.build.os == 'darwin'
+        shell: bash
+        run: |
+          APP="dist/ClickHouse Manager.app"
+          mkdir -p "$APP/Contents/MacOS"
+          mkdir -p "$APP/Contents/Resources"
+
+          # Move binary and templates into .app
+          mv "dist/bundle/ClickHouse Manager Server" "$APP/Contents/MacOS/"
+          mv dist/bundle/internal "$APP/Contents/Resources/"
+
+          # Info.plist
+          cat > "$APP/Contents/Info.plist" << 'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+            "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleName</key>
+            <string>ClickHouse Manager</string>
+            <key>CFBundleDisplayName</key>
+            <string>ClickHouse Manager</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.hungryhub.clickhouse-manager</string>
+            <key>CFBundleVersion</key>
+            <string>1.0.0</string>
+            <key>CFBundleShortVersionString</key>
+            <string>1.0.0</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>CFBundleExecutable</key>
+            <string>start-clickhouse-manager</string>
+            <key>LSMinimumSystemVersion</key>
+            <string>11.0</string>
+            <key>NSHighResolutionCapable</key>
+            <true/>
+          </dict>
+          </plist>
+          PLIST
+
+          # Launcher script
+          cat > "$APP/Contents/MacOS/start-clickhouse-manager" << 'LAUNCHER'
+          #!/usr/bin/env sh
+          set -eu
+
+          SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+          RESOURCES_DIR="$(cd "$SCRIPT_DIR/../Resources" && pwd)"
+          BINARY="$SCRIPT_DIR/ClickHouse Manager Server"
+
+          # Clear quarantine attribute so Gatekeeper does not block the binary
+          xattr -cr "$BINARY" 2>/dev/null || true
+
+          if [ ! -f "$BINARY" ]; then
+            osascript -e 'display alert "ClickHouse Manager" message "Server binary is missing. Please re-install the application."' 2>/dev/null || true
+            printf "[ERROR] Server binary not found: %s\n" "$BINARY" >&2
+            exit 1
+          fi
+
+          export API_PORT="${API_PORT:-:8760}"
+          PORT="${API_PORT#:}"
+
+          URL="http://127.0.0.1:${PORT}/"
+
+          # Open browser in app-window mode after server boots.
+          (
+            sleep 2
+            if [ -d "/Applications/Microsoft Edge.app" ]; then
+              open -na "Microsoft Edge" --args --new-window --app="$URL" 2>/dev/null || open "$URL" 2>/dev/null
+            elif [ -d "/Applications/Google Chrome.app" ]; then
+              open -na "Google Chrome" --args --new-window --app="$URL" 2>/dev/null || open "$URL" 2>/dev/null
+            else
+              open "$URL" 2>/dev/null
+            fi
+          ) &
+
+          cd "$RESOURCES_DIR"
+          exec "$BINARY"
+          LAUNCHER
+          chmod +x "$APP/Contents/MacOS/start-clickhouse-manager"
+
+          # Clean up the now-empty dist/bundle
+          rm -rf dist/bundle
+
+      - name: Create macOS .dmg
+        if: matrix.build.os == 'darwin'
+        shell: bash
+        run: |
+          hdiutil create \
+            -volname "ClickHouse Manager" \
+            -srcfolder "dist/ClickHouse Manager.app" \
+            -ov -format UDZO \
+            "dist/ClickHouse-Manager-macOS.dmg"
+
+      - name: Upload Artifact (Linux/Windows)
+        if: matrix.build.os != 'darwin'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.build.artifact }}
+          path: dist/bundle/**
+
+      - name: Upload Artifact (macOS .dmg)
+        if: matrix.build.os == 'darwin'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.build.artifact }}
+          path: dist/ClickHouse-Manager-macOS.dmg
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -R artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
+          generate_release_notes: true
+          draft: false
+          prerelease: false
