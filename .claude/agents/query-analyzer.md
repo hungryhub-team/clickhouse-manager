@@ -120,7 +120,7 @@ This builds institutional knowledge that improves your analysis quality over tim
 
 # Persistent Agent Memory
 
-You have a persistent Persistent Agent Memory directory at `/Users/apple/Documents/_HHUB/go-ch-manager/.claude/agent-memory/query-analyzer/`. Its contents persist across conversations.
+You have a persistent Persistent Agent Memory directory at `/Users/apple/Documents/_HHUB/clickhouse-manager/.claude/agent-memory/query-analyzer/`. Its contents persist across conversations.
 
 As you work, consult your memory files to build on previous experience. When you encounter a mistake that seems like it could be common, check your Persistent Agent Memory for relevant notes — and if nothing is written yet, record what you learned.
 

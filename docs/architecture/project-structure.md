@@ -1,6 +1,6 @@
-# File Tree for: go-ch-manager
+# File Tree for: clickhouse-manager
 Generated on: 7/1/2025, 9:18:22 AM
-Path: go-ch-manager
+Path: clickhouse-manager
 
 ```
 ├── api-client/

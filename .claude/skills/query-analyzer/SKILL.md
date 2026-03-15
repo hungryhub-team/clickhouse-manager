@@ -1,6 +1,6 @@
 ---
 name: query-analyzer
-description: Skill for analyzing and optimizing ClickHouse queries in go-ch-manager.
+description: Skill for analyzing and optimizing ClickHouse queries in clickhouse-manager.
 ---
 
 # ClickHouse Query Analyzer Skill
