@@ -250,10 +250,19 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R artifacts
 
+      - name: Package artifacts for release
+        run: |
+          mkdir -p release
+          # Zip Linux and Windows bundles
+          cd artifacts/ClickHouse-Manager-Linux-amd64-WebUI && zip -r ../../release/ClickHouse-Manager-Linux-amd64.zip . && cd ../..
+          cd artifacts/ClickHouse-Manager-Windows-amd64-WebUI && zip -r ../../release/ClickHouse-Manager-Windows-amd64.zip . && cd ../..
+          # Copy macOS .dmg as-is
+          cp artifacts/ClickHouse-Manager-macOS-arm64/ClickHouse-Manager-macOS.dmg release/
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/**/*
+          files: release/*
           generate_release_notes: true
           draft: false
           prerelease: false
