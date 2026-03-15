@@ -14,15 +14,12 @@ jobs:
         build:
           - os: 'linux'
             runner: 'ubuntu-22.04'
-            artifact: 'ClickHouse-Manager-Linux-amd64-WebUI'
             binary: 'ClickHouse Manager Server'
           - os: 'windows'
             runner: 'windows-latest'
-            artifact: 'ClickHouse-Manager-Windows-amd64-WebUI'
             binary: 'ClickHouse Manager Server.exe'
           - os: 'darwin'
             runner: 'macos-latest'
-            artifact: 'ClickHouse-Manager-macOS-arm64'
             binary: 'ClickHouse Manager Server'
 
     runs-on: ${{ matrix.build.runner }}
@@ -76,6 +73,14 @@ jobs:
           )
           EOF
 
+      - name: Package Windows zip
+        if: matrix.build.os == 'windows'
+        shell: bash
+        run: |
+          cd dist/bundle
+          7z a ../ClickHouse-Manager-Windows-amd64.zip .
+          cd ../..
+
       - name: Create Linux Launcher
         if: matrix.build.os == 'linux'
         shell: bash
@@ -126,6 +131,14 @@ jobs:
           exec ./"ClickHouse Manager Server"
           EOF
           chmod +x dist/bundle/start-clickhouse-manager.sh
+
+      - name: Package Linux tar.gz
+        if: matrix.build.os == 'linux'
+        shell: bash
+        run: |
+          cd dist/bundle
+          tar czf ../ClickHouse-Manager-Linux-amd64.tar.gz .
+          cd ../..
 
       - name: Create macOS .app bundle
         if: matrix.build.os == 'darwin'
@@ -221,19 +234,14 @@ jobs:
             -ov -format UDZO \
             "dist/ClickHouse-Manager-macOS.dmg"
 
-      - name: Upload Artifact (Linux/Windows)
-        if: matrix.build.os != 'darwin'
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.build.artifact }}
-          path: dist/bundle/**
-
-      - name: Upload Artifact (macOS .dmg)
-        if: matrix.build.os == 'darwin'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.build.artifact }}
-          path: dist/ClickHouse-Manager-macOS.dmg
+          name: ClickHouse-Manager-${{ matrix.build.os }}
+          path: |
+            dist/ClickHouse-Manager-*.zip
+            dist/ClickHouse-Manager-*.tar.gz
+            dist/ClickHouse-Manager-*.dmg
 
   release:
     needs: build
@@ -246,23 +254,18 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+          merge-multiple: true
 
-      - name: Display structure of downloaded files
+      - name: Display downloaded files
         run: ls -R artifacts
-
-      - name: Package artifacts for release
-        run: |
-          mkdir -p release
-          # Zip Linux and Windows bundles
-          cd artifacts/ClickHouse-Manager-Linux-amd64-WebUI && zip -r ../../release/ClickHouse-Manager-Linux-amd64.zip . && cd ../..
-          cd artifacts/ClickHouse-Manager-Windows-amd64-WebUI && zip -r ../../release/ClickHouse-Manager-Windows-amd64.zip . && cd ../..
-          # Copy macOS .dmg as-is
-          cp artifacts/ClickHouse-Manager-macOS-arm64/ClickHouse-Manager-macOS.dmg release/
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: release/*
+          files: |
+            artifacts/ClickHouse-Manager-*.dmg
+            artifacts/ClickHouse-Manager-*.zip
+            artifacts/ClickHouse-Manager-*.tar.gz
           generate_release_notes: true
           draft: false
           prerelease: false
